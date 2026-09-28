@@ -1,0 +1,18 @@
+# Local secrets and Python environment
+backend/.env
+.venv/
+__pycache__/
+*.py[cod]
+
+# Runtime-generated files
+runtime/uploads/
+runtime/last_test.json
+
+# Local tooling / temporary material
+.codex-finalizer/
+.ppt_build/
+_tmp_docs/
+
+# Downloaded upstream source trees; keep these out of the application repo.
+# Clone them separately when needed under third_party/.
+third_party/
