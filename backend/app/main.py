@@ -5,6 +5,7 @@ import json
 import os
 import re
 import uuid
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+
+from backend.workflow import classify_question, save_checkpoint
 
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND = ROOT / "frontend"
@@ -36,7 +39,20 @@ QWEN_TRUST_ENV = os.getenv("QWEN_TRUST_ENV", "false").lower() in {"1", "true", "
 # two-call diagnostic mode when evaluating the planner separately.
 FAST_MODE = os.getenv("FAST_MODE", "true").lower() in {"1", "true", "yes"}
 
-app = FastAPI(title="LabMate Demo API", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Reuse a connection pool across turns. Creating a new AsyncClient for
+    # every upload adds avoidable TCP/TLS setup time on Windows.
+    app.state.qwen_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(45.0, connect=10.0), trust_env=QWEN_TRUST_ENV
+    )
+    try:
+        yield
+    finally:
+        await app.state.qwen_client.aclose()
+
+app = FastAPI(title="LabMate Demo API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -91,6 +107,32 @@ def _load_manual_context(version: str, question: str) -> str:
         return "已配置说明书文件；当前环境未安装 PyMuPDF，暂无法读取 PDF。"
     except Exception as exc:
         return f"说明书读取失败：{exc}"
+
+
+def _load_manual_evidence(version: str, question: str) -> list[dict[str, Any]]:
+    """Return citation-ready records for the UI and the model context."""
+    try:
+        from backend.knowledge.retrieve import search_hits
+
+        return list(search_hits(question, version))
+    except Exception:
+        return []
+
+
+def _compress_for_model(image_bytes: bytes, content_type: str) -> tuple[bytes, str]:
+    """Shrink phone photos while preserving enough detail for screen reading."""
+    try:
+        from io import BytesIO
+        from PIL import Image
+
+        with Image.open(BytesIO(image_bytes)) as image:
+            image = image.convert("RGB")
+            image.thumbnail((1800, 1800), Image.Resampling.LANCZOS)
+            output = BytesIO()
+            image.save(output, format="JPEG", quality=84, optimize=True)
+            return output.getvalue(), "image/jpeg"
+    except Exception:
+        return image_bytes, content_type
 
 
 def _constraint_check(state: dict[str, Any]) -> dict[str, Any]:
@@ -180,15 +222,14 @@ image_quality（good/poor/unusable）、observations（自由键值对象，记�
     payload = {"model": QWEN_VISION_MODEL, "messages": [{"role": "user", "content": [
         {"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": data_url}}
     ]}], "temperature": 0.1}
-    async with httpx.AsyncClient(timeout=httpx.Timeout(120.0, connect=15.0), trust_env=QWEN_TRUST_ENV) as client:
-        response = await client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload)
-        response.raise_for_status()
+    response = await app.state.qwen_client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload)
+    response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
     content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip())
     return json.loads(content)
 
 
-async def _qwen_fast_turn(image_bytes: bytes, content_type: str, question: str, version: str, context: str, history: list[dict[str, str]]) -> tuple[dict[str, Any], dict[str, Any]]:
+async def _qwen_fast_turn(image_bytes: bytes, content_type: str, question: str, version: str, context: str, history: list[dict[str, str]], route: str = "general") -> tuple[dict[str, Any], dict[str, Any]]:
     """One VLM request for the interactive path.
 
     The model still separates observation from planning in the response JSON,
@@ -201,6 +242,7 @@ async def _qwen_fast_turn(image_bytes: bytes, content_type: str, question: str, 
     data_url = f"data:{content_type};base64,{base64.b64encode(image_bytes).decode()}"
     prompt = f"""你是 LabMate 的多模态科研仪器助教。请在一次响应中完成‘观察’和‘本轮规划’，但严格区分两者。
 用户选择的知识库版本是：{version}。它只用于检索对应数据库。默认用户上传的图片就是本次要分析的设备现场，不要检查、质疑或输出图片品牌/型号与该版本是否一致。
+问题类型：{route}
 学生问题：{question}
 最近历史：{json.dumps(history[-3:], ensure_ascii=False)}
 设备说明书检索证据：\n{context[:2600]}
@@ -212,9 +254,8 @@ plan 必须包含：goal、need_clarification、questions（数组）、next_act
     payload = {"model": QWEN_FAST_MODEL, "messages": [{"role": "user", "content": [
         {"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": data_url}}
     ]}], "temperature": 0.1, "max_tokens": 650}
-    async with httpx.AsyncClient(timeout=httpx.Timeout(45.0, connect=10.0), trust_env=QWEN_TRUST_ENV) as client:
-        response = await client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload)
-        response.raise_for_status()
+    response = await app.state.qwen_client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload, timeout=httpx.Timeout(45.0, connect=10.0))
+    response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
     content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip())
     result = json.loads(content)
@@ -239,9 +280,8 @@ async def _qwen_plan(question: str, version: str, state: dict[str, Any], context
 goal（理解后的目标）、need_clarification（布尔值）、questions（数组）、next_action（字符串或 null）、status（GUIDANCE/NEED_MORE_INFORMATION/COMPLETED/ESCALATE）、reason（依据当前状态的原因）、expected_result（执行后应观察到的变化或 null）、evidence_sufficient（布尔值）、safety_notes（数组）。
 要求：一次只给最重要的一步或一组很短的连续动作；不能编造说明书没有的型号专属按钮；如果说明书片段不足以支持具体操作，evidence_sufficient 必须为 false，并把不确定性说清楚。"""
     payload = {"model": QWEN_TEXT_MODEL, "messages": [{"role": "user", "content": prompt}], "temperature": 0.2}
-    async with httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=15.0), trust_env=QWEN_TRUST_ENV) as client:
-        response = await client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload)
-        response.raise_for_status()
+    response = await app.state.qwen_client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload, timeout=httpx.Timeout(90.0, connect=15.0))
+    response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
     content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip())
     return json.loads(content)
@@ -273,6 +313,7 @@ async def analyze(
     question: str = Form(...),
     version: str = Form(...),
     history: str = Form("[]"),
+    session_id: str = Form(""),
 ) -> dict[str, Any]:
     if not question.strip() or not version.strip():
         raise HTTPException(status_code=400, detail="问题和设备版本号不能为空")
@@ -284,6 +325,7 @@ async def analyze(
     image_id = f"{uuid.uuid4().hex}_{Path(image.filename or 'image').name}"
     (UPLOAD_DIR / image_id).write_bytes(image_bytes)
     try:
+        model_bytes, model_content_type = _compress_for_model(image_bytes, image.content_type)
         try:
             history_items = json.loads(history) if history else []
             if not isinstance(history_items, list):
@@ -292,12 +334,15 @@ async def analyze(
             history_items = []
         # Retrieve a small initial evidence set before the VLM call. This lets
         # fast mode ground its single response without a second model round.
+        route = classify_question(question)
         context = _load_manual_context(version, question)
+        evidence = _load_manual_evidence(version, question)
         if FAST_MODE:
-            state, decision = await _qwen_fast_turn(image_bytes, image.content_type, question, version, context, history_items)
+            state, decision = await _qwen_fast_turn(model_bytes, model_content_type, question, version, context, history_items, route)
         else:
-            state = await _qwen_vision(image_bytes, image.content_type, question, version)
+            state = await _qwen_vision(model_bytes, model_content_type, question, version)
             context = _load_manual_context(version, question + " " + json.dumps(state, ensure_ascii=False))
+            evidence = _load_manual_evidence(version, question + " " + json.dumps(state, ensure_ascii=False))
             gate = _constraint_check(state)
             decision = await _qwen_plan(question, version, state, context, history_items, gate)
         gate = _constraint_check(state)
@@ -306,10 +351,13 @@ async def analyze(
         if FAST_MODE and gate["blocked"]:
             decision.update({"status": "NEED_MORE_INFORMATION", "need_clarification": True, "questions": [gate["reason"]], "next_action": None, "reason": gate["reason"], "evidence_sufficient": False})
         decision = _clean_identity_questions(decision)
+        save_checkpoint(session_id, state, decision, route)
         guidance = decision.get("next_action") or "\n".join(decision.get("questions") or [decision.get("reason", "请补充更多信息。")])
         return {
             "request_id": image_id.split("_")[0], "state": state, "decision": decision,
             "guidance": guidance, "knowledge_context": context[:5000],
+            "evidence": evidence,
+            "route": route, "session_id": session_id,
             "mode": "demo" if DEMO_MODE or not QWEN_API_KEY else "qwen",
         }
     except httpx.TimeoutException as exc:

@@ -83,6 +83,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             content TEXT NOT NULL,
             chunk_type TEXT NOT NULL DEFAULT 'text',
             source_level TEXT NOT NULL,
+            chunk_order INTEGER NOT NULL DEFAULT 0,
+            section_path TEXT,
+            parent_chunk_id INTEGER,
             UNIQUE(document_id, page, content)
         );
         CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
@@ -90,6 +93,17 @@ def init_db(conn: sqlite3.Connection) -> None:
         );
         """
     )
+    # Keep existing demo databases usable while adding the metadata fields
+    # borrowed from RAGFlow's chunk model. SQLite has no IF NOT EXISTS form
+    # for ADD COLUMN, so inspect the table before applying each migration.
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(knowledge_chunks)")}
+    for name, definition in (
+        ("chunk_order", "INTEGER NOT NULL DEFAULT 0"),
+        ("section_path", "TEXT"),
+        ("parent_chunk_id", "INTEGER"),
+    ):
+        if name not in columns:
+            conn.execute(f"ALTER TABLE knowledge_chunks ADD COLUMN {name} {definition}")
 
 
 def import_pdf(pdf_path: Path, db_path: Path, device_model: str, source_level: str = "official") -> int:
@@ -110,12 +124,18 @@ def import_pdf(pdf_path: Path, db_path: Path, device_model: str, source_level: s
         )
         document_id = cur.lastrowid
         count = 0
+        chunk_order = 0
         for page_no, page in enumerate(doc, start=1):
             page_text = page.get_text("text") or ""
             for _, section, content in make_chunks(page_text, page_no):
+                chunk_order += 1
                 conn.execute(
-                    "INSERT OR IGNORE INTO knowledge_chunks(document_id,device_model,page,section,content,source_level) VALUES(?,?,?,?,?,?)",
-                    (document_id, device_model, page_no, section, content, source_level),
+                    """INSERT OR IGNORE INTO knowledge_chunks(
+                        document_id,device_model,page,section,content,source_level,
+                        chunk_order,section_path,parent_chunk_id
+                    ) VALUES(?,?,?,?,?,?,?,?,NULL)""",
+                    (document_id, device_model, page_no, section, content, source_level,
+                     chunk_order, section, ),
                 )
                 count += 1
         # Rebuild the external-content FTS table so importing a second device

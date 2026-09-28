@@ -28,19 +28,20 @@
       <button id="submit" type="submit">上传并分析</button>
     </form><p id="status" class="muted"></p></section>
     <section class="card"><h2>分析结果</h2><div id="empty" class="muted">提交一张图片后，结果会显示在这里。</div><div id="output" hidden>
-      <h3>当前指导</h3><div id="guidance" class="result"></div><h3>任务规划</h3><div id="decision" class="result"></div><h3>需要你补充的信息</h3><div id="questions" class="result muted"></div><h3>视觉观察 JSON</h3><pre id="state"></pre><h3>知识库依据</h3><pre id="knowledge"></pre>
+      <h3>当前指导</h3><div id="guidance" class="result"></div><h3>问题类型</h3><div id="route" class="result muted"></div><h3>任务规划</h3><div id="decision" class="result"></div><h3>需要你补充的信息</h3><div id="questions" class="result muted"></div><h3>知识库依据</h3><div id="evidence" class="result"></div><details><summary>查看视觉观察数据</summary><pre id="state"></pre></details>
     </div></section>
   </div>
 </main><script>
 const form=document.querySelector('#form'), image=document.querySelector('#image'), preview=document.querySelector('#preview');
-let history=[];
+let history=[]; const sessionId=crypto.randomUUID();
 image.onchange=()=>{const f=image.files[0]; if(f){preview.src=URL.createObjectURL(f);preview.style.display='block';}};
 form.onsubmit=async(e)=>{e.preventDefault(); const btn=document.querySelector('#submit'), status=document.querySelector('#status'); btn.disabled=true; status.textContent='正在上传图片并分析，请稍候…';
-  const fd=new FormData(); fd.append('image',image.files[0]); fd.append('question',document.querySelector('#question').value); fd.append('version',document.querySelector('#version').value); fd.append('history',JSON.stringify(history));
+  const fd=new FormData(); fd.append('image',image.files[0]); fd.append('question',document.querySelector('#question').value); fd.append('version',document.querySelector('#version').value); fd.append('history',JSON.stringify(history)); fd.append('session_id',sessionId);
   try { const r=await fetch('/api/analyze',{method:'POST',body:fd}); const data=await r.json(); if(!r.ok) throw new Error(data.detail||'请求失败');
     document.querySelector('#empty').hidden=true; document.querySelector('#output').hidden=false; document.querySelector('#guidance').textContent=data.guidance;
     const d=data.decision||{}; document.querySelector('#decision').textContent=`目标：${d.goal||'未识别'}\n状态：${d.status||'未知'}\n原因：${d.reason||'—'}\n预期变化：${d.expected_result||'—'}\n知识库依据是否充分：${d.evidence_sufficient===true?'是':'暂不足'}`;
-    document.querySelector('#questions').textContent=(d.questions||[]).join('\n')||'本轮暂不需要补充信息。'; document.querySelector('#state').textContent=JSON.stringify(data.state,null,2); document.querySelector('#knowledge').textContent=data.knowledge_context;
+    const routeNames={general:'普通问题',operation:'仪器操作',measurement:'测量与读数',troubleshooting:'故障排查',safety:'安全提醒'}; document.querySelector('#route').textContent=routeNames[data.route]||data.route||'未分类'; document.querySelector('#questions').textContent=(d.questions||[]).join('\n')||'本轮暂不需要补充信息。'; document.querySelector('#state').textContent=JSON.stringify(data.state,null,2);
+    const evidence=(data.evidence||[]).map((e,i)=>`证据 ${i+1}｜${e.title}｜第 ${e.page} 页｜${e.section}\n${e.content}`).join('\n\n'); document.querySelector('#evidence').textContent=evidence||'本轮没有检索到可展示的说明书片段。';
     history.push({question:document.querySelector('#question').value, observation:data.state, decision:d}); status.textContent=`分析完成（${data.mode==='demo'?'演示模式':'Qwen 模式'}）`;
   } catch(err){status.textContent='分析失败：'+err.message;} finally{btn.disabled=false;}
 };
