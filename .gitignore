@@ -7,6 +7,7 @@ __pycache__/
 # Runtime-generated files
 runtime/uploads/
 runtime/last_test.json
+runtime/sessions.db
 
 # Local tooling / temporary material
 .codex-finalizer/
