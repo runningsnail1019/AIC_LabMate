@@ -1,0 +1,85 @@
+﻿case_id,kind,variant,field_id,category,expected,observed_region_text,exact_token_found,max_line_confidence
+photo_scope_active,real_photo,full_1800,cursor_delta_x,numeric_unit,5.000ms,AX=5.000ms,True,0.92492
+photo_scope_active,real_photo,full_1800,cursor_inverse_delta_x,numeric_unit,200.00Hz,1/AX-200.00H2,False,0.81951
+photo_scope_active,real_photo,full_1800,cursor_x1,numeric_unit,-2.500ms,X1-2.500ms,False,0.96498
+photo_scope_active,real_photo,full_1800,cursor_y1,numeric_unit,-0.22V,V1=-0.22V,True,0.85728
+photo_scope_active,real_photo,full_1800,cursor_delta_y,numeric_unit,0.63V,AV-0.63V,False,0.83024
+photo_scope_active,real_photo,full_1800,cursor_x2,numeric_unit,2.500ms,X2=2.500ms,True,0.86471
+photo_scope_active,real_photo,full_1800,cursor_y2,numeric_unit,0.42V,"X2=2.500ms
+V2=0.42V",True,0.87964
+photo_scope_active,real_photo,full_1800,c1_vertical_scale,numeric_unit,5.00V,,False,
+photo_scope_active,real_photo,full_1800,c2_vertical_scale,numeric_unit,1.00V,.00V,False,0.67658
+photo_scope_active,real_photo,full_1800,timebase,numeric_unit,500us/div,"500us/div
+1.00GSa/s",True,0.94172
+photo_scope_active,real_photo,full_1800,memory_depth,numeric_unit,5.00Mpts,5.00Mpts,True,0.98128
+photo_scope_active,real_photo,full_1800,sample_rate,numeric_unit,1.00GSa/s,1.00GSa/s,True,0.94172
+photo_scope_active,real_photo,full_1800,trigger_level,numeric_unit,0.00V,"C1DC
+0.00V
+上升沿",True,0.93893
+photo_scope_active,real_photo,full_1800,trigger_counter,numeric_unit,<2.0Hz,f(C1)<2.0Hz,True,0.91158
+photo_scope_active,real_photo,crop_1800,cursor_delta_x,numeric_unit,5.000ms,AX-5.000ms,False,0.96877
+photo_scope_active,real_photo,crop_1800,cursor_inverse_delta_x,numeric_unit,200.00Hz,1/AX-200.00Hz,False,0.92993
+photo_scope_active,real_photo,crop_1800,cursor_x1,numeric_unit,-2.500ms,X1--2.500ms,False,0.9445
+photo_scope_active,real_photo,crop_1800,cursor_y1,numeric_unit,-0.22V,Y1--0.22V,False,0.9076
+photo_scope_active,real_photo,crop_1800,cursor_delta_y,numeric_unit,0.63V,AY-0.63V,False,0.94853
+photo_scope_active,real_photo,crop_1800,cursor_x2,numeric_unit,2.500ms,X2-2.500ms,False,0.85927
+photo_scope_active,real_photo,crop_1800,cursor_y2,numeric_unit,0.42V,"X2-2.500ms
+Y2-0.42V",False,0.89226
+photo_scope_active,real_photo,crop_1800,c1_vertical_scale,numeric_unit,5.00V,"5.00V/
+0.00V",True,0.86014
+photo_scope_active,real_photo,crop_1800,c2_vertical_scale,numeric_unit,1.00V,"1.00VI
+0.00V",False,0.93587
+photo_scope_active,real_photo,crop_1800,timebase,numeric_unit,500us/div,"500us/div
+1.00GSa/s",True,0.95243
+photo_scope_active,real_photo,crop_1800,memory_depth,numeric_unit,5.00Mpts,5.00Mpts,True,0.98189
+photo_scope_active,real_photo,crop_1800,sample_rate,numeric_unit,1.00GSa/s,1.00GSa/s,True,0.95243
+photo_scope_active,real_photo,crop_1800,trigger_level,numeric_unit,0.00V,0.00V,True,0.82888
+photo_scope_active,real_photo,crop_1800,trigger_counter,numeric_unit,<2.0Hz,f(C1)<2.0Hz,True,0.90368
+manual_sdg,manual_figure,full_1800,frequency_setting,numeric_unit,1.000000kHz,1.000000kHz,True,0.97815
+manual_sdg,manual_figure,full_1800,amplitude_setting,numeric_unit,4.000Vpp,4.000Vpp,True,0.92585
+manual_sdg,manual_figure,full_1800,offset_setting,numeric_unit,0.000Vdc,0.000Vdc,True,0.98041
+manual_sdg,manual_figure,full_1800,phase_setting,numeric_unit,0.00°,0.00°,True,0.94739
+manual_sdg,manual_figure,full_1800,am_depth,numeric_unit,100.0%,100.0%,True,0.99751
+manual_sdg,manual_figure,full_1800,am_frequency,numeric_unit,100.000000Hz,100.000000Hz,True,0.99115
+manual_sdg,manual_figure,full_1800,load,status,HiZ,Hiz,False,0.86861
+manual_sdg,manual_figure,full_1800,output,status,ON,ON,True,0.97406
+manual_sdg,manual_figure,crop_1800,frequency_setting,numeric_unit,1.000000kHz,1.000 000kHz,True,0.9968
+manual_sdg,manual_figure,crop_1800,amplitude_setting,numeric_unit,4.000Vpp,4.000 Vpp,True,0.99804
+manual_sdg,manual_figure,crop_1800,offset_setting,numeric_unit,0.000Vdc,0.000 Vdc,True,0.99783
+manual_sdg,manual_figure,crop_1800,phase_setting,numeric_unit,0.00°,0.00,False,0.99783
+manual_sdg,manual_figure,crop_1800,am_depth,numeric_unit,100.0%,100.0%,True,0.9947
+manual_sdg,manual_figure,crop_1800,am_frequency,numeric_unit,100.000000Hz,100.000000 Hz,True,0.96929
+manual_sdg,manual_figure,crop_1800,load,status,HiZ,Hiz,False,0.83928
+manual_sdg,manual_figure,crop_1800,output,status,ON,ON,True,0.99306
+manual_dmm_single,manual_figure,full_1800,main_reading,numeric_unit,+1.99931VAC,+1.99931 VAC,True,0.99875
+manual_dmm_single,manual_figure,full_1800,range,numeric_unit,2V,Auto 2V,True,0.93182
+manual_dmm_single,manual_figure,full_1800,function,status,ACVoltage,AC Voltage,True,0.93052
+manual_dmm_single,manual_figure,crop_1800,main_reading,numeric_unit,+1.99931VAC,十 1.99931 VAC,False,0.99938
+manual_dmm_single,manual_figure,crop_1800,range,numeric_unit,2V,Auto 2V,True,0.99775
+manual_dmm_single,manual_figure,crop_1800,function,status,ACVoltage,AC Voltage,True,0.95604
+manual_dmm_dual,manual_figure,full_1800,main_reading,numeric_unit,+1.99967VAC,+1.99967 VAC,True,0.9994
+manual_dmm_dual,manual_figure,full_1800,range,numeric_unit,2V,Auto 2V,True,0.95902
+manual_dmm_dual,manual_figure,full_1800,secondary_reading,numeric_unit,+1.9999kHz,Dual:+1.9999kHz,True,0.95655
+manual_dmm_dual,manual_figure,full_1800,function,status,ACVoltage,AC Voltage,True,0.97216
+manual_dmm_dual,manual_figure,crop_1800,main_reading,numeric_unit,+1.99967VAC,+ 1.99967 VAC,True,0.9996
+manual_dmm_dual,manual_figure,crop_1800,range,numeric_unit,2V,Auto 2V,True,0.99336
+manual_dmm_dual,manual_figure,crop_1800,secondary_reading,numeric_unit,+1.9999kHz,Dual: +1.9999kHz,True,0.98458
+manual_dmm_dual,manual_figure,crop_1800,function,status,ACVoltage,AC Voltage,True,0.98914
+manual_scope,manual_figure,full_1800,cursor_delta_x,numeric_unit,-1.010ms,ΔX=-1.010ms,True,0.84266
+manual_scope,manual_figure,full_1800,cursor_inverse_delta_x,numeric_unit,990.10Hz,1/ΔX=990.10Hz,True,0.94501
+manual_scope,manual_figure,full_1800,cursor_x1,numeric_unit,-510us,x1=-510us,True,0.8666
+manual_scope,manual_figure,full_1800,cursor_x2,numeric_unit,500us,x2-500us,False,0.86175
+manual_scope,manual_figure,full_1800,vertical_scale,numeric_unit,1.00V,"1.00V/
+0.00V",True,0.96021
+manual_scope,manual_figure,full_1800,timebase,numeric_unit,500us/div,500us/div,True,0.97571
+manual_scope,manual_figure,full_1800,memory_depth,numeric_unit,10.0Mpts,10.0Mpts,True,0.98657
+manual_scope,manual_figure,full_1800,sample_rate,numeric_unit,2.00GSa/s,2.00GSa/5,False,0.93115
+manual_scope,manual_figure,crop_1800,cursor_delta_x,numeric_unit,-1.010ms,ΔX--1.010ms,False,0.87176
+manual_scope,manual_figure,crop_1800,cursor_inverse_delta_x,numeric_unit,990.10Hz,1/ΔX=990.10Hz,True,0.88623
+manual_scope,manual_figure,crop_1800,cursor_x1,numeric_unit,-510us,X1--510us,False,0.8979
+manual_scope,manual_figure,crop_1800,cursor_x2,numeric_unit,500us,X2-500us,False,0.96693
+manual_scope,manual_figure,crop_1800,vertical_scale,numeric_unit,1.00V,"1.00V/
+0.00V",True,0.95024
+manual_scope,manual_figure,crop_1800,timebase,numeric_unit,500us/div,500us/div,True,0.98504
+manual_scope,manual_figure,crop_1800,memory_depth,numeric_unit,10.0Mpts,10.0Mpts 2.00G5a/s,True,0.97024
+manual_scope,manual_figure,crop_1800,sample_rate,numeric_unit,2.00GSa/s,10.0Mpts 2.00G5a/s,False,0.97024

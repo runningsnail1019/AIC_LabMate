@@ -1,0 +1,994 @@
+{
+  "date": "2026-10-12",
+  "application_commit": "c5cd9b3a62106e6a88957d2df29eb97a1cd447f6",
+  "qwen_status": {
+    "demo_mode": true,
+    "qwen_key_configured": false,
+    "vlm_tests": "not_run"
+  },
+  "engines": {
+    "server": {
+      "settings": {
+        "method": "PP-OCRv5 detection+recognition / RapidOCR / ONNX Runtime CPU",
+        "model_size": "server",
+        "threads": 4,
+        "repeat": 1,
+        "software": {
+          "rapidocr": "3.4.1",
+          "onnxruntime": "1.31.0",
+          "Pillow": "12.3.0",
+          "opencv-python": "5.0.0.93",
+          "numpy": "2.5.4"
+        },
+        "python": "3.12.14",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "used_models": [
+          {
+            "name": "ch_PP-OCRv5_rec_server_infer.onnx",
+            "bytes": 84577022,
+            "sha256": "e09385400eaaaef34ceff54aeb7c4f0f1fe014c27fa8b9905d4709b65746562a"
+          },
+          {
+            "name": "ch_PP-OCRv5_server_det.onnx",
+            "bytes": 88118768,
+            "sha256": "0f8846b1d4bba223a2a2f9d9b44022fbc22cc019051a602b41a7fda9667e4cad"
+          },
+          {
+            "name": "ch_ppocr_mobile_v2.0_cls_infer.onnx",
+            "bytes": 585532,
+            "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+          }
+        ]
+      },
+      "summary": [
+        {
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "matched": 11,
+          "total": 14,
+          "region_token_recall": 0.7857142857142857,
+          "median_case_seconds": 49.62508610000077
+        },
+        {
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "matched": 9,
+          "total": 14,
+          "region_token_recall": 0.6428571428571429,
+          "median_case_seconds": 7.197175300003437
+        },
+        {
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "matched": 17,
+          "total": 19,
+          "region_token_recall": 0.8947368421052632,
+          "median_case_seconds": 50.13259055000162
+        },
+        {
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "matched": 15,
+          "total": 19,
+          "region_token_recall": 0.7894736842105263,
+          "median_case_seconds": 17.952565349998622
+        }
+      ],
+      "negative_cases": [
+        {
+          "case_id": "photo_boot_1",
+          "variant": "full_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_boot_1",
+          "variant": "crop_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_boot_2",
+          "variant": "full_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_boot_2",
+          "variant": "crop_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "variant": "full_1800",
+          "screen_text": "",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "variant": "crop_1800",
+          "screen_text": "",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        }
+      ],
+      "metric": "Exact critical-string presence within annotated region; NOT semantic field accuracy or VLM accuracy.",
+      "annotation_method": "Assistant visual labels established before viewing OCR output, not independently human-verified.",
+      "input_conditions": 16,
+      "recognition_calls": 16,
+      "case_timings": [
+        {
+          "case_id": "photo_boot_1",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 43.767832800003816
+        },
+        {
+          "case_id": "photo_boot_1",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 6.555011000004015
+        },
+        {
+          "case_id": "photo_boot_2",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 55.48233939999773
+        },
+        {
+          "case_id": "photo_boot_2",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 7.839339600002859
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 32.908094999998866
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 3.1540846999996575
+        },
+        {
+          "case_id": "photo_scope_active",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 76.9045385999998
+        },
+        {
+          "case_id": "photo_scope_active",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 40.85129659999802
+        },
+        {
+          "case_id": "manual_sdg",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 62.25521100000333
+        },
+        {
+          "case_id": "manual_sdg",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 24.319911699996737
+        },
+        {
+          "case_id": "manual_dmm_single",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 38.00997009999992
+        },
+        {
+          "case_id": "manual_dmm_single",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 11.585219000000507
+        },
+        {
+          "case_id": "manual_dmm_dual",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 34.19115150000289
+        },
+        {
+          "case_id": "manual_dmm_dual",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 9.928223399998387
+        },
+        {
+          "case_id": "manual_scope",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 204.66826339999534
+        },
+        {
+          "case_id": "manual_scope",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 36.53888670000015
+        }
+      ]
+    },
+    "mobile": {
+      "settings": {
+        "method": "PP-OCRv5 detection+recognition / RapidOCR / ONNX Runtime CPU",
+        "model_size": "mobile",
+        "threads": 4,
+        "repeat": 1,
+        "software": {
+          "rapidocr": "3.4.1",
+          "onnxruntime": "1.31.0",
+          "Pillow": "12.3.0",
+          "opencv-python": "5.0.0.93",
+          "numpy": "2.5.4"
+        },
+        "python": "3.12.14",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "used_models": [
+          {
+            "name": "ch_PP-OCRv5_mobile_det.onnx",
+            "bytes": 4819576,
+            "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae"
+          },
+          {
+            "name": "ch_PP-OCRv5_rec_mobile_infer.onnx",
+            "bytes": 16631306,
+            "sha256": "5825fc7ebf84ae7a412be049820b4d86d77620f204a041697b0494669b1742c5"
+          },
+          {
+            "name": "ch_ppocr_mobile_v2.0_cls_infer.onnx",
+            "bytes": 585532,
+            "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+          }
+        ]
+      },
+      "summary": [
+        {
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "matched": 9,
+          "total": 14,
+          "region_token_recall": 0.6428571428571429,
+          "median_case_seconds": 1.1714042999956291
+        },
+        {
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "matched": 6,
+          "total": 14,
+          "region_token_recall": 0.42857142857142855,
+          "median_case_seconds": 0.5169175500013807
+        },
+        {
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "matched": 17,
+          "total": 19,
+          "region_token_recall": 0.8947368421052632,
+          "median_case_seconds": 0.9152774999965914
+        },
+        {
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "matched": 13,
+          "total": 19,
+          "region_token_recall": 0.6842105263157895,
+          "median_case_seconds": 0.45767794999846956
+        }
+      ],
+      "negative_cases": [
+        {
+          "case_id": "photo_boot_1",
+          "variant": "full_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_boot_1",
+          "variant": "crop_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_boot_2",
+          "variant": "full_1800",
+          "screen_text": "SIGLENT\nSIGLENT TECHNOLOGIES",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_boot_2",
+          "variant": "crop_1800",
+          "screen_text": "5 SIGLENT SIGLENT TECHNOLOGIES",
+          "numeric_fragments": [
+            "5"
+          ],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "variant": "full_1800",
+          "screen_text": "",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "variant": "crop_1800",
+          "screen_text": "",
+          "numeric_fragments": [],
+          "numeric_unit_like_strings": []
+        }
+      ],
+      "metric": "Exact critical-string presence within annotated region; NOT semantic field accuracy or VLM accuracy.",
+      "annotation_method": "Assistant visual labels established before viewing OCR output, not independently human-verified.",
+      "input_conditions": 16,
+      "recognition_calls": 16,
+      "case_timings": [
+        {
+          "case_id": "photo_boot_1",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 1.2277917999963393
+        },
+        {
+          "case_id": "photo_boot_1",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 0.5137335000035819
+        },
+        {
+          "case_id": "photo_boot_2",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 1.115016799994919
+        },
+        {
+          "case_id": "photo_boot_2",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 0.5201015999991796
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 0.7871675999995205
+        },
+        {
+          "case_id": "photo_blank_sdg",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 0.26237890000629704
+        },
+        {
+          "case_id": "photo_scope_active",
+          "kind": "real_photo",
+          "variant": "full_1800",
+          "median_seconds": 1.3554826999970828
+        },
+        {
+          "case_id": "photo_scope_active",
+          "kind": "real_photo",
+          "variant": "crop_1800",
+          "median_seconds": 0.8534144000004744
+        },
+        {
+          "case_id": "manual_sdg",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 1.3908730000039213
+        },
+        {
+          "case_id": "manual_sdg",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 0.554400799999712
+        },
+        {
+          "case_id": "manual_dmm_single",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 0.7707719999962137
+        },
+        {
+          "case_id": "manual_dmm_single",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 0.345905700000003
+        },
+        {
+          "case_id": "manual_dmm_dual",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 0.7395934000014677
+        },
+        {
+          "case_id": "manual_dmm_dual",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 0.3609550999972271
+        },
+        {
+          "case_id": "manual_scope",
+          "kind": "manual_figure",
+          "variant": "full_1800",
+          "median_seconds": 1.059782999996969
+        },
+        {
+          "case_id": "manual_scope",
+          "kind": "manual_figure",
+          "variant": "crop_1800",
+          "median_seconds": 0.758678999998665
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "photo_boot_1",
+      "kind": "real_photo",
+      "source_sha256": "c68b9226b0081c69698575ab2ce2c643459b354ae358fa5adf29776c6c3b59e0",
+      "source_size": [
+        4096,
+        3072
+      ],
+      "screen_box_pixels": [
+        389,
+        768,
+        2703,
+        2043
+      ],
+      "screen_state": "boot",
+      "fields": []
+    },
+    {
+      "id": "photo_boot_2",
+      "kind": "real_photo",
+      "source_sha256": "074043f06fcb94b2b4ad255094333449ec0b2f96a7333e56522f8d5f1be551c0",
+      "source_size": [
+        4096,
+        3072
+      ],
+      "screen_box_pixels": [
+        344,
+        651,
+        2683,
+        1880
+      ],
+      "screen_state": "boot",
+      "fields": []
+    },
+    {
+      "id": "photo_blank_sdg",
+      "kind": "real_photo",
+      "source_sha256": "3f9b1e8aa79f118f397328c3b1710b32b9a2d45e99340314803fca7bc95f9e85",
+      "source_size": [
+        4096,
+        3072
+      ],
+      "screen_box_pixels": [
+        754,
+        774,
+        2232,
+        1579
+      ],
+      "screen_state": "blank",
+      "fields": []
+    },
+    {
+      "id": "photo_scope_active",
+      "kind": "real_photo",
+      "source_sha256": "c73b2d474afd13a7670ad86118e54ab8950b6c0d508804e38cf5921ab11970c8",
+      "source_size": [
+        4096,
+        3072
+      ],
+      "screen_box_pixels": [
+        418,
+        780,
+        2621,
+        1997
+      ],
+      "screen_state": "measurement",
+      "fields": [
+        {
+          "id": "cursor_delta_x",
+          "text": "5.000ms",
+          "box": [
+            0.35,
+            0.085,
+            0.49,
+            0.13
+          ],
+          "category": "numeric_unit",
+          "meaning": "光标时间差"
+        },
+        {
+          "id": "cursor_inverse_delta_x",
+          "text": "200.00Hz",
+          "box": [
+            0.35,
+            0.13,
+            0.5,
+            0.175
+          ],
+          "category": "numeric_unit",
+          "meaning": "光标倒数，不是自动频率测量"
+        },
+        {
+          "id": "cursor_x1",
+          "text": "-2.500ms",
+          "box": [
+            0.025,
+            0.47,
+            0.13,
+            0.505
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_y1",
+          "text": "-0.22V",
+          "box": [
+            0.025,
+            0.505,
+            0.13,
+            0.54
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_delta_y",
+          "text": "0.63V",
+          "box": [
+            0.14,
+            0.52,
+            0.215,
+            0.565
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_x2",
+          "text": "2.500ms",
+          "box": [
+            0.72,
+            0.355,
+            0.8,
+            0.39
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_y2",
+          "text": "0.42V",
+          "box": [
+            0.72,
+            0.39,
+            0.8,
+            0.435
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "c1_vertical_scale",
+          "text": "5.00V",
+          "box": [
+            0.06,
+            0.904,
+            0.132,
+            0.949
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "c2_vertical_scale",
+          "text": "1.00V",
+          "box": [
+            0.17,
+            0.914,
+            0.225,
+            0.95
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "timebase",
+          "text": "500us/div",
+          "box": [
+            0.73,
+            0.932,
+            0.795,
+            0.969
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "memory_depth",
+          "text": "5.00Mpts",
+          "box": [
+            0.66,
+            0.96,
+            0.73,
+            0.999
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "sample_rate",
+          "text": "1.00GSa/s",
+          "box": [
+            0.73,
+            0.96,
+            0.795,
+            0.999
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "trigger_level",
+          "text": "0.00V",
+          "box": [
+            0.855,
+            0.93,
+            0.9,
+            0.972
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "trigger_counter",
+          "text": "<2.0Hz",
+          "box": [
+            0.72,
+            0.035,
+            0.83,
+            0.075
+          ],
+          "category": "numeric_unit",
+          "meaning": "触发计数器上界，不是光标计算频率"
+        }
+      ]
+    },
+    {
+      "id": "manual_sdg",
+      "kind": "manual_figure",
+      "source_sha256": "5bd1f8862baaa57ff990d881f4ae5dc0496b4565e9a7a1e5e9934d198bc23e9d",
+      "source_size": [
+        1061,
+        1500
+      ],
+      "screen_box_pixels": [
+        208,
+        400,
+        850,
+        766
+      ],
+      "screen_state": "settings",
+      "fields": [
+        {
+          "id": "frequency_setting",
+          "text": "1.000000kHz",
+          "box": [
+            0.69,
+            0.1,
+            0.95,
+            0.19
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "amplitude_setting",
+          "text": "4.000Vpp",
+          "box": [
+            0.69,
+            0.2,
+            0.95,
+            0.29
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "offset_setting",
+          "text": "0.000Vdc",
+          "box": [
+            0.69,
+            0.28,
+            0.95,
+            0.37
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "phase_setting",
+          "text": "0.00°",
+          "box": [
+            0.69,
+            0.36,
+            0.91,
+            0.45
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "am_depth",
+          "text": "100.0%",
+          "box": [
+            0.205,
+            0.56,
+            0.4,
+            0.645
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "am_frequency",
+          "text": "100.000000Hz",
+          "box": [
+            0.21,
+            0.64,
+            0.48,
+            0.73
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "load",
+          "text": "HiZ",
+          "box": [
+            0.69,
+            0.64,
+            0.82,
+            0.73
+          ],
+          "category": "status"
+        },
+        {
+          "id": "output",
+          "text": "ON",
+          "box": [
+            0.69,
+            0.73,
+            0.8,
+            0.8
+          ],
+          "category": "status"
+        }
+      ]
+    },
+    {
+      "id": "manual_dmm_single",
+      "kind": "manual_figure",
+      "source_sha256": "5f5b75425acd9a9e7f1c97575b853fdbe8156d04d5942870ab1cb85c070f49e2",
+      "source_size": [
+        1061,
+        1500
+      ],
+      "screen_box_pixels": [
+        284,
+        335,
+        775,
+        616
+      ],
+      "screen_state": "measurement",
+      "fields": [
+        {
+          "id": "main_reading",
+          "text": "+1.99931VAC",
+          "box": [
+            0.035,
+            0.245,
+            0.98,
+            0.555
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "range",
+          "text": "2V",
+          "box": [
+            0.4,
+            0.67,
+            0.56,
+            0.75
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "function",
+          "text": "ACVoltage",
+          "box": [
+            0.015,
+            0.08,
+            0.25,
+            0.185
+          ],
+          "category": "status"
+        }
+      ]
+    },
+    {
+      "id": "manual_dmm_dual",
+      "kind": "manual_figure",
+      "source_sha256": "5f5b75425acd9a9e7f1c97575b853fdbe8156d04d5942870ab1cb85c070f49e2",
+      "source_size": [
+        1061,
+        1500
+      ],
+      "screen_box_pixels": [
+        282,
+        827,
+        776,
+        1108
+      ],
+      "screen_state": "measurement",
+      "fields": [
+        {
+          "id": "main_reading",
+          "text": "+1.99967VAC",
+          "box": [
+            0.035,
+            0.225,
+            0.98,
+            0.55
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "range",
+          "text": "2V",
+          "box": [
+            0.4,
+            0.65,
+            0.55,
+            0.725
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "secondary_reading",
+          "text": "+1.9999kHz",
+          "box": [
+            0.67,
+            0.74,
+            0.995,
+            0.81
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "function",
+          "text": "ACVoltage",
+          "box": [
+            0.015,
+            0.08,
+            0.25,
+            0.185
+          ],
+          "category": "status"
+        }
+      ]
+    },
+    {
+      "id": "manual_scope",
+      "kind": "manual_figure",
+      "source_sha256": "16943ef184c1756917923fc3baf9994570ef16d05739d05de5511f34f1f75ce5",
+      "source_size": [
+        1061,
+        1500
+      ],
+      "screen_box_pixels": [
+        160,
+        414,
+        902,
+        850
+      ],
+      "screen_state": "measurement",
+      "fields": [
+        {
+          "id": "cursor_delta_x",
+          "text": "-1.010ms",
+          "box": [
+            0.44,
+            0.088,
+            0.535,
+            0.13
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_inverse_delta_x",
+          "text": "990.10Hz",
+          "box": [
+            0.44,
+            0.127,
+            0.555,
+            0.16
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_x1",
+          "text": "-510us",
+          "box": [
+            0.285,
+            0.205,
+            0.365,
+            0.24
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "cursor_x2",
+          "text": "500us",
+          "box": [
+            0.602,
+            0.618,
+            0.699,
+            0.656
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "vertical_scale",
+          "text": "1.00V",
+          "box": [
+            0.057,
+            0.935,
+            0.113,
+            0.971
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "timebase",
+          "text": "500us/div",
+          "box": [
+            0.74,
+            0.932,
+            0.807,
+            0.97
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "memory_depth",
+          "text": "10.0Mpts",
+          "box": [
+            0.67,
+            0.966,
+            0.74,
+            0.999
+          ],
+          "category": "numeric_unit"
+        },
+        {
+          "id": "sample_rate",
+          "text": "2.00GSa/s",
+          "box": [
+            0.74,
+            0.966,
+            0.806,
+            0.999
+          ],
+          "category": "numeric_unit"
+        }
+      ]
+    }
+  ]
+}

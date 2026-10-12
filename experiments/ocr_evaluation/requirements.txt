@@ -1,0 +1,7 @@
+# Isolated experiment only. Do NOT append these to backend/requirements.txt.
+rapidocr==3.4.1
+onnxruntime==1.31.0
+Pillow==12.3.0
+PyMuPDF==1.28.2
+opencv-python==5.0.0.93
+numpy==2.5.4

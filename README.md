@@ -1,5 +1,7 @@
 # LabMate 电脑端 Demo
 
+设备模板与 OCR 研究的阶段交付见 [两项任务交付说明](docs/LabMate_两项任务交付说明.md)（[PDF 版](output/pdf/LabMate_两项任务交付说明.pdf)）。模板使用方式见 [设备模板接入说明](docs/device_templates_integration.md)；OCR 实测数据和选型依据见 [OCR 测试报告](docs/ocr_evaluation_report.md)。当前 OCR 为独立研究实验，未加入 demo 主流程。
+
 LabMate 是一个面向科研仪器操作指导的电脑端 MVP。用户在浏览器中上传仪器照片、填写问题和已选择的设备型号，后端会结合图片状态、对应说明书证据和最近对话，返回本轮可执行的指导。
 
 当前版本支持：

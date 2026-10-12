@@ -1,0 +1,56 @@
+{
+  "description": "有限样本本地OCR探查。4张实拍+3张手册页中的4个屏幕区域，不是大样本准确率基准。",
+  "annotation_method": "助手在查看OCR输出前直接目视原图建立参考标注；未由人员独立复核，不能视为正式人工金标准。",
+  "cases": [
+    {"id":"photo_boot_1","kind":"real_photo","source":"../微信图片_20261012170118_139_2.jpg","screen_box":[0.095,0.25,0.660,0.665],"screen_state":"boot","fields":[],"numeric_readings_expected":false},
+    {"id":"photo_boot_2","kind":"real_photo","source":"../微信图片_20261012170127_140_2.jpg","screen_box":[0.084,0.212,0.655,0.612],"screen_state":"boot","fields":[],"numeric_readings_expected":false},
+    {"id":"photo_blank_sdg","kind":"real_photo","source":"../微信图片_20261012170137_141_2.jpg","screen_box":[0.184,0.252,0.545,0.514],"screen_state":"blank","fields":[],"numeric_readings_expected":false},
+    {"id":"photo_scope_active","kind":"real_photo","source":"../微信图片_20261012170145_142_2.jpg","screen_box":[0.102,0.254,0.640,0.650],"screen_state":"measurement","numeric_readings_expected":true,"fields":[
+      {"id":"cursor_delta_x","text":"5.000ms","box":[0.35,0.085,0.49,0.13],"category":"numeric_unit","meaning":"光标时间差"},
+      {"id":"cursor_inverse_delta_x","text":"200.00Hz","box":[0.35,0.13,0.50,0.175],"category":"numeric_unit","meaning":"光标倒数，不是自动频率测量"},
+      {"id":"cursor_x1","text":"-2.500ms","box":[0.025,0.47,0.13,0.505],"category":"numeric_unit"},
+      {"id":"cursor_y1","text":"-0.22V","box":[0.025,0.505,0.13,0.54],"category":"numeric_unit"},
+      {"id":"cursor_delta_y","text":"0.63V","box":[0.14,0.52,0.215,0.565],"category":"numeric_unit"},
+      {"id":"cursor_x2","text":"2.500ms","box":[0.72,0.355,0.80,0.39],"category":"numeric_unit"},
+      {"id":"cursor_y2","text":"0.42V","box":[0.72,0.39,0.80,0.435],"category":"numeric_unit"},
+      {"id":"c1_vertical_scale","text":"5.00V","box":[0.06,0.904,0.132,0.949],"category":"numeric_unit"},
+      {"id":"c2_vertical_scale","text":"1.00V","box":[0.17,0.914,0.225,0.95],"category":"numeric_unit"},
+      {"id":"timebase","text":"500us/div","box":[0.73,0.932,0.795,0.969],"category":"numeric_unit"},
+      {"id":"memory_depth","text":"5.00Mpts","box":[0.66,0.96,0.73,0.999],"category":"numeric_unit"},
+      {"id":"sample_rate","text":"1.00GSa/s","box":[0.73,0.96,0.795,0.999],"category":"numeric_unit"},
+      {"id":"trigger_level","text":"0.00V","box":[0.855,0.93,0.90,0.972],"category":"numeric_unit"},
+      {"id":"trigger_counter","text":"<2.0Hz","box":[0.72,0.035,0.83,0.075],"category":"numeric_unit","meaning":"触发计数器上界，不是光标计算频率"}
+    ]},
+    {"id":"manual_sdg","kind":"manual_figure","source":"backend/device_templates/assets/sdg2000x/screen.png","screen_box":[0.196,0.2667,0.801,0.5107],"screen_state":"settings","pdf_page":12,"printed_page":"10","numeric_readings_expected":true,"fields":[
+      {"id":"frequency_setting","text":"1.000000kHz","box":[0.69,0.10,0.95,0.19],"category":"numeric_unit"},
+      {"id":"amplitude_setting","text":"4.000Vpp","box":[0.69,0.20,0.95,0.29],"category":"numeric_unit"},
+      {"id":"offset_setting","text":"0.000Vdc","box":[0.69,0.28,0.95,0.37],"category":"numeric_unit"},
+      {"id":"phase_setting","text":"0.00°","box":[0.69,0.36,0.91,0.45],"category":"numeric_unit"},
+      {"id":"am_depth","text":"100.0%","box":[0.205,0.56,0.40,0.645],"category":"numeric_unit"},
+      {"id":"am_frequency","text":"100.000000Hz","box":[0.21,0.64,0.48,0.73],"category":"numeric_unit"},
+      {"id":"load","text":"HiZ","box":[0.69,0.64,0.82,0.73],"category":"status"},
+      {"id":"output","text":"ON","box":[0.69,0.73,0.80,0.80],"category":"status"}
+    ]},
+    {"id":"manual_dmm_single","kind":"manual_figure","source":"backend/device_templates/assets/sdm3055x_e/screen.png","screen_box":[0.268,0.2233,0.7304,0.4107],"screen_state":"measurement","pdf_page":19,"printed_page":"7","numeric_readings_expected":true,"fields":[
+      {"id":"main_reading","text":"+1.99931VAC","box":[0.035,0.245,0.98,0.555],"category":"numeric_unit"},
+      {"id":"range","text":"2V","box":[0.40,0.67,0.56,0.75],"category":"numeric_unit"},
+      {"id":"function","text":"ACVoltage","box":[0.015,0.08,0.25,0.185],"category":"status"}
+    ]},
+    {"id":"manual_dmm_dual","kind":"manual_figure","source":"backend/device_templates/assets/sdm3055x_e/screen.png","screen_box":[0.266,0.551,0.731,0.739],"screen_state":"measurement","pdf_page":19,"printed_page":"7","numeric_readings_expected":true,"fields":[
+      {"id":"main_reading","text":"+1.99967VAC","box":[0.035,0.225,0.98,0.55],"category":"numeric_unit"},
+      {"id":"range","text":"2V","box":[0.40,0.65,0.55,0.725],"category":"numeric_unit"},
+      {"id":"secondary_reading","text":"+1.9999kHz","box":[0.67,0.74,0.995,0.81],"category":"numeric_unit"},
+      {"id":"function","text":"ACVoltage","box":[0.015,0.08,0.25,0.185],"category":"status"}
+    ]},
+    {"id":"manual_scope","kind":"manual_figure","source":"backend/device_templates/assets/sds2000x_hd/screen.png","screen_box":[0.151,0.276,0.850,0.567],"screen_state":"measurement","pdf_page":27,"printed_page":"25","numeric_readings_expected":true,"fields":[
+      {"id":"cursor_delta_x","text":"-1.010ms","box":[0.44,0.088,0.535,0.13],"category":"numeric_unit"},
+      {"id":"cursor_inverse_delta_x","text":"990.10Hz","box":[0.44,0.127,0.555,0.16],"category":"numeric_unit"},
+      {"id":"cursor_x1","text":"-510us","box":[0.285,0.205,0.365,0.24],"category":"numeric_unit"},
+      {"id":"cursor_x2","text":"500us","box":[0.602,0.618,0.699,0.656],"category":"numeric_unit"},
+      {"id":"vertical_scale","text":"1.00V","box":[0.057,0.935,0.113,0.971],"category":"numeric_unit"},
+      {"id":"timebase","text":"500us/div","box":[0.74,0.932,0.807,0.97],"category":"numeric_unit"},
+      {"id":"memory_depth","text":"10.0Mpts","box":[0.67,0.966,0.74,0.999],"category":"numeric_unit"},
+      {"id":"sample_rate","text":"2.00GSa/s","box":[0.74,0.966,0.806,0.999],"category":"numeric_unit"}
+    ]}
+  ]
+}

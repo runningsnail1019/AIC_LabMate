@@ -8,6 +8,7 @@ __pycache__/
 runtime/uploads/
 runtime/last_test.json
 runtime/sessions.db
+runtime/ocr_eval_local/
 
 # Local tooling / temporary material
 .codex-finalizer/
