@@ -8,7 +8,7 @@
 
 单张静态照片不能证明时间上的波形稳定或读数稳定，请把 temporal_stability 设为 unknown。只看到屏幕触发模式 Auto 不等于触发已经稳定。模型自报 confidence 只用于提示，不是经过校准的正确率。
 
-只观察与当前问题相关的部件，通常 3 至 8 个。返回现有仓库兼容的 JSON：image_quality、observations、measurement_values、visible_text、uncertain_items、safety_flags、confidence、need_retake。observations 内可增加 template_id、panel_view、screen_state、temporal_stability、components。
+只观察与当前问题相关的部件，通常 3 至 8 个。返回现有仓库兼容的 JSON：image_quality、observations、measurement_values、visible_text、uncertain_items、safety_flags、confidence、need_retake。本模板要求 observations 内包含 template_id、panel_view、screen_state、temporal_stability、components；其他旧观察字段仍可保留。
 
 components 的每个条目包含 component_id、visibility（visible/not_visible/unclear）、label_text、state（字符串或 null）、bbox（当前输入照片的归一化 [x1,y1,x2,y2] 或 null）、evidence。坐标原点在左上角，范围 0 到 1；不要复制参考图坐标。定位不确定时 bbox=null。
 
