@@ -1,0 +1,21 @@
+{
+  "image_quality":"poor",
+  "observations":{
+    "template_id":"siglent_sdg2000x",
+    "panel_view":"front",
+    "screen_state":"blank",
+    "temporal_stability":"unknown",
+    "components":[
+      {"component_id":"display","visibility":"visible","label_text":null,"state":"屏幕黑屏，无法读取设定参数","bbox":null,"evidence":"示例格式，不是对现场照片的模型实测"},
+      {"component_id":"output_ch1","visibility":"unclear","label_text":null,"state":null,"bbox":null,"evidence":"示例格式，连接和输出状态未确认"}
+    ]
+  },
+  "measurement_values":{
+    "frequency_setting":{"value":null,"unit":null,"raw_text":null,"kind":"setting","source_component":"basic_parameters"}
+  },
+  "visible_text":[],
+  "uncertain_items":["屏幕参数无法读取","不能从连接线推断输出已开启"],
+  "safety_flags":[],
+  "confidence":0,
+  "need_retake":true
+}

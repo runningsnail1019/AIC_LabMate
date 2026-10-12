@@ -1,0 +1,30 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"LabMate template observation",
+  "type":"object",
+  "required":["image_quality","observations","measurement_values","visible_text","uncertain_items","safety_flags","confidence","need_retake"],
+  "properties":{
+    "image_quality":{"enum":["good","poor","unusable"]},
+    "observations":{"type":"object","required":["template_id","panel_view","screen_state","temporal_stability","components"],"properties":{
+      "template_id":{"type":"string"},
+      "panel_view":{"enum":["front","rear","screen","mixed","unknown"]},
+      "screen_state":{"enum":["measurement","settings","boot","blank","unreadable","not_visible","unknown"]},
+      "temporal_stability":{"const":"unknown"},
+      "components":{"type":"array","items":{"type":"object","required":["component_id","visibility","label_text","state","bbox","evidence"],"properties":{
+        "component_id":{"type":"string"},"visibility":{"enum":["visible","not_visible","unclear"]},
+        "label_text":{"type":["string","null"]},"state":{"type":["string","null"]},
+        "bbox":{"oneOf":[{"type":"null"},{"type":"array","minItems":4,"maxItems":4,"items":{"type":"number","minimum":0,"maximum":1}}]},
+        "evidence":{"type":"string"}
+      },"additionalProperties":false}}
+    },"additionalProperties":true},
+    "measurement_values":{"type":"object","additionalProperties":{"type":"object","required":["value","unit","raw_text","kind","source_component"],"properties":{
+      "value":{"type":["number","null"]},"unit":{"type":["string","null"]},"raw_text":{"type":["string","null"]},
+      "kind":{"enum":["measurement","setting","cursor","counter","unknown"]},"source_component":{"type":"string"}
+    },"additionalProperties":false}},
+    "visible_text":{"type":"array","items":{"type":"string"}},
+    "uncertain_items":{"type":"array","items":{"type":"string"}},
+    "safety_flags":{"type":"array","items":{"type":"string"}},
+    "confidence":{"type":"number","minimum":0,"maximum":1},"need_retake":{"type":"boolean"}
+  },
+  "additionalProperties":true
+}

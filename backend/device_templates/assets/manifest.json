@@ -1,0 +1,102 @@
+{
+  "created_date": "2026-10-12",
+  "method": "pdftoppm rendered source pages; no scene photos uploaded",
+  "manuals": [
+    {
+      "template_id": "siglent_sdg2000x",
+      "file_name": "SDG2000X_UserManual_UM0202X-C02C(1)(1).pdf",
+      "sha256": "afa4a3a213aec34c83dd0999db32868db6ab24be0690748d1f356b95d512fd2e",
+      "pdf_page_count": 141,
+      "references": [
+        {
+          "id": "front",
+          "path": "assets/sdg2000x/front.png",
+          "pdf_page": 10,
+          "printed_page": "8",
+          "section": "1.2 前面板总览 图1-2",
+          "panel": "front"
+        },
+        {
+          "id": "rear",
+          "path": "assets/sdg2000x/rear.png",
+          "pdf_page": 11,
+          "printed_page": "9",
+          "section": "1.2 后面板总览 图1-3",
+          "panel": "rear"
+        },
+        {
+          "id": "screen",
+          "path": "assets/sdg2000x/screen.png",
+          "pdf_page": 12,
+          "printed_page": "10",
+          "section": "1.3 触摸屏显示区 图1-4",
+          "panel": "screen"
+        }
+      ]
+    },
+    {
+      "template_id": "siglent_sdm3055x_e",
+      "file_name": "SDM3055X-E_UserManual_UM06035E_C03A(1)(1).pdf",
+      "sha256": "86b302364ab5a30b0bf6f3dbee9bc030000477abb26a63b3a599c9c3bbd2647a",
+      "pdf_page_count": 119,
+      "references": [
+        {
+          "id": "front",
+          "path": "assets/sdm3055x_e/front.png",
+          "pdf_page": 16,
+          "printed_page": "4",
+          "section": "第1章 前面板 图1-4",
+          "panel": "front"
+        },
+        {
+          "id": "rear",
+          "path": "assets/sdm3055x_e/rear.png",
+          "pdf_page": 17,
+          "printed_page": "5",
+          "section": "第1章 后面板 图1-5",
+          "panel": "rear"
+        },
+        {
+          "id": "screen",
+          "path": "assets/sdm3055x_e/screen.png",
+          "pdf_page": 19,
+          "printed_page": "7",
+          "section": "第1章 用户界面 图1-7 图1-8",
+          "panel": "screen"
+        }
+      ]
+    },
+    {
+      "template_id": "siglent_sds2000x_hd",
+      "file_name": "SDS2000X HD_UserManual_CN01A(1)(1).pdf",
+      "sha256": "f5d37d1b85f2cced21d578ec45f37ecedb5d777e79d9fd45ad559ce227b2f584",
+      "pdf_page_count": 332,
+      "references": [
+        {
+          "id": "front",
+          "path": "assets/sds2000x_hd/front.png",
+          "pdf_page": 22,
+          "printed_page": "20",
+          "section": "7.1 前面板",
+          "panel": "front"
+        },
+        {
+          "id": "rear",
+          "path": "assets/sds2000x_hd/rear.png",
+          "pdf_page": 23,
+          "printed_page": "21",
+          "section": "7.2 后面板",
+          "panel": "rear"
+        },
+        {
+          "id": "screen",
+          "path": "assets/sds2000x_hd/screen.png",
+          "pdf_page": 27,
+          "printed_page": "25",
+          "section": "8.1 概述",
+          "panel": "screen"
+        }
+      ]
+    }
+  ]
+}
