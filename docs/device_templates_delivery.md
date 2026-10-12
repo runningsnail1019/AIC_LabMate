@@ -1,5 +1,7 @@
 # LabMate 设备视觉模板交付说明
 
+> 本文和同名 Word 是第一阶段“模板制作”交付记录，下面的未接入/未上传描述保留为当时状态。后续已上传，并按用户追加要求接入前后端；当前功能、使用方法与验证范围请看 [设备模板接入说明](device_templates_integration.md)。
+
 日期：2026-10-12。基准：`main` 提交 `0771203e93d725b63bbe092194e1c8cfcc30cb4c`。新增分支：`feat/manual-device-templates`。
 
 ## 本次完成的工作

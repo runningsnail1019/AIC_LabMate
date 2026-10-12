@@ -10,7 +10,8 @@
     h1 { margin-bottom: 6px; } .sub { color: #657089; margin-top: 0; }
     .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
     .card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 8px 28px #1d35570d; }
-    label { display:block; font-size: 13px; font-weight: 700; margin: 16px 0 7px; } input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #ccd5e2; border-radius: 9px; padding: 11px; font: inherit; }
+    label { display:block; font-size: 13px; font-weight: 700; margin: 16px 0 7px; } input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #ccd5e2; border-radius: 9px; padding: 11px; font: inherit; }
+    input[type="checkbox"] { width:auto; } .notice { margin:12px 0; padding:12px; border-radius:9px; background:#fff7df; color:#674a00; font-size:13px; line-height:1.6; }
     textarea { min-height: 88px; resize: vertical; } button { width:100%; margin-top:18px; background:#2563eb; border:0; color:white; border-radius:9px; padding:12px; font-weight:700; cursor:pointer; } button:disabled { opacity:.55; cursor:wait; }
     #preview { width:100%; max-height:300px; object-fit:contain; background:#f1f5f9; border-radius:10px; margin-top: 14px; display:none; }
     .pill { display:inline-block; padding:4px 9px; border-radius:999px; background:#eaf2ff; color:#2457b8; font-size:12px; } .result { white-space:pre-wrap; line-height:1.7; }
@@ -20,29 +21,57 @@
 </head>
 <body><main class="wrap">
   <h1>LabMate <span class="pill">MVP Demo</span></h1><p class="sub">上传仪器照片，输入问题，AI 会结合当前状态、设备说明书和已有对话规划下一步。</p>
+  <div id="modeNotice" class="notice" role="status">正在检查模型模式…</div>
   <div class="grid">
     <section class="card"><form id="form">
+      <label for="template">设备视觉模板（可选）</label><select id="template"><option value="">不使用模板，保留原分析流程</option></select>
+      <div id="templateHint" class="muted" style="font-size:12px;margin-top:6px">请按实际设备选择；现场 SDS2202X Plus 不能选择 SDS2000X HD。</div>
+      <div id="templateOptions" hidden>
+        <label for="panel">本张照片关注区域</label><select id="panel"><option value="front">前面板（含屏幕）</option><option value="rear">后面板</option><option value="screen">屏幕特写</option><option value="all">多区域 / 整体</option></select>
+        <label><input id="references" type="checkbox" checked /> 附说明书参考图（关闭则只用文字模板）</label>
+      </div>
       <label for="version">知识库版本 / 型号</label><input id="version" value="EPI-EWB204+" required /><div class="muted" style="font-size:12px;margin-top:6px">仅用于选择对应知识库；图片默认就是本次要分析的设备现场。</div>
       <label for="question">你想完成什么？</label><textarea id="question" required>我想测量输入信号的频率</textarea>
       <label for="image">仪器照片</label><input id="image" type="file" accept="image/*" required /><img id="preview" alt="图片预览" />
       <button id="submit" type="submit">上传并分析</button>
     </form><p id="status" class="muted"></p></section>
     <section class="card"><h2>分析结果</h2><div id="empty" class="muted">提交一张图片后，结果会显示在这里。</div><div id="output" hidden>
-      <h3>当前指导</h3><div id="guidance" class="result"></div><h3>问题类型</h3><div id="route" class="result muted"></div><h3>任务规划</h3><div id="decision" class="result"></div><h3>需要你补充的信息</h3><div id="questions" class="result muted"></div><h3>知识库依据</h3><div id="evidence" class="result"></div><details><summary>查看视觉观察数据</summary><pre id="state"></pre></details>
+      <h3>当前指导</h3><div id="guidance" class="result"></div><h3>本轮模板</h3><div id="templateResult" class="result muted"></div><h3>问题类型</h3><div id="route" class="result muted"></div><h3>任务规划</h3><div id="decision" class="result"></div><h3>需要你补充的信息</h3><div id="questions" class="result muted"></div><h3>知识库依据</h3><div id="evidence" class="result"></div><details><summary>查看视觉观察数据</summary><pre id="state"></pre></details>
     </div></section>
   </div>
 </main><script>
 const form=document.querySelector('#form'), image=document.querySelector('#image'), preview=document.querySelector('#preview');
-let history=[]; const sessionId=crypto.randomUUID();
+let history=[], sessionId=crypto.randomUUID(), templates=[], previousVersion='EPI-EWB204+';
+const templateSelect=document.querySelector('#template'), versionInput=document.querySelector('#version');
+function resetConversation(){history=[]; sessionId=crypto.randomUUID(); document.querySelector('#output').hidden=true; document.querySelector('#empty').hidden=false;}
+async function loadTemplates(){
+  try {const r=await fetch('/api/device-templates'); if(!r.ok) throw new Error(); templates=(await r.json()).templates;
+    for(const t of templates){const option=document.createElement('option'); option.value=t.template_id; option.textContent=t.display_name; templateSelect.appendChild(option);}
+  } catch {document.querySelector('#templateHint').textContent='模板目录加载失败，可继续使用原分析流程；请确认已重启新版后端。';}
+}
+async function loadHealth(){
+  try {const r=await fetch('/api/health'); if(!r.ok) throw new Error(); const h=await r.json(); document.querySelector('#modeNotice').textContent=h.demo_mode?'当前是演示模式：不会调用视觉模型，返回内容不能作为照片识别结果。真实测试需要配置 Qwen 密钥并关闭 DEMO_MODE。':'当前是 Qwen 模式：选择模板后会将现场照片、部件目录及选定的说明书参考图发送给模型。参考图可能增加耗时和费用。';}
+  catch {document.querySelector('#modeNotice').textContent='无法确认模型模式；分析后请检查结果标记，不要把演示数据当作真实识别。';}
+}
+templateSelect.onchange=()=>{
+  const t=templates.find(t=>t.template_id===templateSelect.value);
+  if(t){if(document.querySelector('#templateOptions').hidden) previousVersion=versionInput.value; versionInput.value=t.selectors[0]; document.querySelector('#templateHint').textContent=t.compatibility_notes.join(' ');}
+  else {versionInput.value=previousVersion; document.querySelector('#templateHint').textContent='使用原分析流程。现场 SDS2202X Plus 不可套用 HD 模板。';}
+  document.querySelector('#templateOptions').hidden=!t; resetConversation();
+};
+versionInput.onchange=resetConversation;
+loadTemplates(); loadHealth();
 image.onchange=()=>{const f=image.files[0]; if(f){preview.src=URL.createObjectURL(f);preview.style.display='block';}};
 form.onsubmit=async(e)=>{e.preventDefault(); const btn=document.querySelector('#submit'), status=document.querySelector('#status'); btn.disabled=true; status.textContent='正在上传图片并分析，请稍候…';
   const fd=new FormData(); fd.append('image',image.files[0]); fd.append('question',document.querySelector('#question').value); fd.append('version',document.querySelector('#version').value); fd.append('history',JSON.stringify(history)); fd.append('session_id',sessionId);
+  fd.append('template_id',templateSelect.value); fd.append('panel',document.querySelector('#panel').value); fd.append('include_references',String(document.querySelector('#references').checked));
   try { const r=await fetch('/api/analyze',{method:'POST',body:fd}); const data=await r.json(); if(!r.ok) throw new Error(data.detail||'请求失败');
     document.querySelector('#empty').hidden=true; document.querySelector('#output').hidden=false; document.querySelector('#guidance').textContent=data.guidance;
+    const t=data.template||{}; document.querySelector('#templateResult').textContent=t.id?`${t.name}｜区域：${t.panel}\n${t.applied?'已用于模型请求'+(t.references_included?'（含说明书参考图）':'（仅文字模板）'):'已选择，但演示模式未调用模型'}`:'未使用模板，沿用原分析流程';
     const d=data.decision||{}; document.querySelector('#decision').textContent=`目标：${d.goal||'未识别'}\n状态：${d.status||'未知'}\n原因：${d.reason||'—'}\n预期变化：${d.expected_result||'—'}\n知识库依据是否充分：${d.evidence_sufficient===true?'是':'暂不足'}`;
     const routeNames={general:'普通问题',operation:'仪器操作',measurement:'测量与读数',troubleshooting:'故障排查',safety:'安全提醒'}; document.querySelector('#route').textContent=routeNames[data.route]||data.route||'未分类'; document.querySelector('#questions').textContent=(d.questions||[]).join('\n')||'本轮暂不需要补充信息。'; document.querySelector('#state').textContent=JSON.stringify(data.state,null,2);
     const evidence=(data.evidence||[]).map((e,i)=>`证据 ${i+1}｜${e.title}｜第 ${e.page} 页｜${e.section}\n${e.content}`).join('\n\n'); document.querySelector('#evidence').textContent=evidence||'本轮没有检索到可展示的说明书片段。';
-    history.push({question:document.querySelector('#question').value, observation:data.state, decision:d}); status.textContent=`分析完成（${data.mode==='demo'?'演示模式':'Qwen 模式'}）`;
+    history.push({question:document.querySelector('#question').value, observation:data.state, decision:d}); status.textContent=`分析完成（${data.mode==='demo'?'演示模式，非真实照片识别':'Qwen 模式'}）`;
   } catch(err){status.textContent='分析失败：'+err.message;} finally{btn.disabled=false;}
 };
 </script></body></html>

@@ -1,6 +1,6 @@
 # 设备照片识别模板
 
-本目录完成第一项任务：以老师提供的三个 SIGLENT 说明书的面板图和部件说明制作可供 Qwen-VL 使用的模板。本次不接 OCR、不做 OCR 性能对比、不训练 YOLO，也不修改组长已有的后端、前端、知识库和工作流文件。
+本目录完成第一项任务：以老师提供的三个 SIGLENT 说明书的面板图和部件说明制作可供 Qwen-VL 使用的模板。模板制作之后，已按用户追加要求接入现有前后端；知识库和工作流程序保留，不接 OCR、不做 OCR 性能对比、不训练 YOLO。接入详情见 [接入说明](../../docs/device_templates_integration.md)。
 
 ## 模板目录
 
@@ -18,7 +18,7 @@ SDS2202X Plus 不是 SDS2000X HD 的选择别名。现场万用表只出现局�
 - `assets/*/*.png`：9 张已检查的手册页参考图。保留页码和部件注释；不是现场状态。
 - `prompts/common.md`：公共识别规则，约束 unknown、当前照片坐标、数值来源及静态图的判断边界。
 - `prompts/generated/*.md`：从目录编译的三份可直接复制提示词，含用户问题占位符。
-- `schemas/observation.schema.json`：供后续服务端校验的八字段观察协议。本次未接入旧 API 的强制校验。
+- `schemas/observation.schema.json`：八字段观察协议，选用模板时由 `validation.py` 校验；未选模板不改变旧响应校验方式。
 - `examples/observation_unknown.json`：无法读取屏幕时的格式示例，不是模型测试结果。
 - `catalog.py`：按模板 ID 读取、编译提示词、拼接现场照片和参考图。
 - `__main__.py`：无网络的预览工具，不读取密钥、不调用模型。
@@ -45,9 +45,9 @@ python -m backend.device_templates --template-id siglent_sdg2000x --mode fast --
 
 ## 与现有框架的接法
 
-模板目前是独立、可选的新增组件。旧 `POST /api/analyze`、FAST_MODE、模型配置和 Demo 模式原样保留，启动旧 `run_demo.ps1` 不会自动启用模板。三份新手册也没有被导入旧 `knowledge.db`；不能声称已具备新设备完整操作指导。
+模板已作为可选功能接入 `POST /api/analyze`。网页通过 `GET /api/device-templates` 获取模板目录，提交 `template_id`、`panel` 和 `include_references`。不选模板时保留旧分析流程；选模板后，快模式与两步模式都会使用模板。原模型配置和工作流保留，演示模式明确标注为模拟而非识别。三份新手册仍未导入旧 `knowledge.db`，不能声称已具备新设备完整操作指导；模板请求不再回退使用 EPI PDF。
 
-后续接入只需要在原多模态 payload 的 `messages[0].content` 中使用本模块返回值：
+接入原理是在多模态 payload 的 `messages[0].content` 中使用本模块返回值：
 
 ```python
 from backend.device_templates import build_visual_content
@@ -69,7 +69,7 @@ payload = {
 }
 ```
 
-这是接入示例，不是本次对旧主程序的改动。若要求返回多个部件，原 FAST_MODE 的 650 输出 token 可能不足，应按实际输出数量调整；本次没有改变旧配置。
+上面是调用原理示例。实际后端模板快模式设置 3200 输出 token，观察模式设置 2400；不选模板时保留旧快模式的 650。更多参考图及输出会增加耗时和费用，可以关闭参考图只用文字目录。
 
 `template_id` 是观察部件目录，`version` 是手册知识库标识，两者应明确配置。不要把 SDG 模板和 EPI 说明书一起当作操作证据；未找到匹配证据时保留 `evidence_sufficient=false`。
 
@@ -89,4 +89,4 @@ payload = {
 python -m unittest discover -s tests -p test_device_templates.py -v
 ```
 
-这些检查验证模板选择、图文顺序、部件来源、引用文件和 unknown 处理，不测量 Qwen/OCR 准确率。真实识别效果仍待接入后验证；本次未把照片发送到模型服务。
+另运行 `python -m unittest discover -s tests -p 'test*.py' -v` 检查 HTTP 接入、原流程兼容、快/慢模式、知识库隔离、模拟模式和输出校验。检查用模拟模型响应，不发送现场照片、不测量 Qwen/OCR 准确率；真实识别效果仍需验证。

@@ -1,6 +1,6 @@
 """Load manual-derived templates and build Qwen-compatible visual messages.
 
-No API call, OCR dependency, model training, or changes to the existing app.
+No API calls here; the app optionally uses this module to build model input.
 """
 from __future__ import annotations
 

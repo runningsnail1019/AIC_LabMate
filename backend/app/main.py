@@ -17,6 +17,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.workflow import classify_question, save_checkpoint
+from backend.device_templates import build_visual_content, get_template, list_templates
+from backend.device_templates.validation import validate_observation
 
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND = ROOT / "frontend"
@@ -135,6 +137,28 @@ def _compress_for_model(image_bytes: bytes, content_type: str) -> tuple[bytes, s
         return image_bytes, content_type
 
 
+def _template_manual_context(version: str, question: str) -> tuple[str, list[dict[str, Any]]]:
+    """Template requests must not fall back to the unrelated default EPI PDF."""
+    from backend.knowledge.retrieve import format_hits
+
+    hits = [hit for hit in _load_manual_evidence(version, question)
+            if hit.get("device_model") == version]
+    return (format_hits(hits) if hits else
+            "未检索到该设备的匹配操作证据；模板只提供部件名称和布局，不是完整操作说明。"), hits
+
+
+def _template_demo_state(template_id: str) -> dict[str, Any]:
+    # Explicitly unknown: this is a UI/protocol preview, never image recognition.
+    return {
+        "image_quality": "poor",
+        "observations": {"template_id": template_id, "panel_view": "unknown",
+                         "screen_state": "unknown", "temporal_stability": "unknown", "components": []},
+        "measurement_values": {}, "visible_text": [],
+        "uncertain_items": ["演示模式未调用视觉模型，未分析照片"],
+        "safety_flags": [], "confidence": 0, "need_retake": False,
+    }
+
+
 def _constraint_check(state: dict[str, Any]) -> dict[str, Any]:
     """Small, task-independent safety/quality gate.
 
@@ -209,9 +233,10 @@ def _demo_plan(question: str, state: dict[str, Any], context: str) -> dict[str, 
     return {"goal": question, "need_clarification": False, "questions": [], "next_action": "请根据当前画面执行最相关的一步操作，完成后再次上传照片，我会继续确认。", "status": "GUIDANCE", "reason": "已根据当前画面和用户目标生成本轮建议。", "expected_result": "设备状态发生与本轮操作相符的变化。", "evidence_sufficient": bool(context and "未检索到" not in context), "safety_notes": []}
 
 
-async def _qwen_vision(image_bytes: bytes, content_type: str, question: str, version: str) -> dict[str, Any]:
+async def _qwen_vision(image_bytes: bytes, content_type: str, question: str, version: str,
+                       template_id: str = "", panel: str = "front", include_references: bool = True) -> dict[str, Any]:
     if DEMO_MODE or not QWEN_API_KEY:
-        return _demo_state(question)
+        return _template_demo_state(template_id) if template_id else _demo_state(question)
     data_url = f"data:{content_type};base64,{base64.b64encode(image_bytes).decode()}"
     prompt = f"""你是科研仪器视觉观察模块。用户已经在系统中选择了知识库版本：{version}。
 这个版本号只用于后端查找知识库，图片是否出现型号文字、图片中的品牌或铭牌都不需要核对，也不能阻止回答。不要输出或讨论设备型号一致性。
@@ -222,14 +247,24 @@ image_quality（good/poor/unusable）、observations（自由键值对象，记�
     payload = {"model": QWEN_VISION_MODEL, "messages": [{"role": "user", "content": [
         {"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": data_url}}
     ]}], "temperature": 0.1}
+    if template_id:
+        payload["messages"][0]["content"] = build_visual_content(
+            template_id, image_bytes, content_type, question, panel=panel,
+            include_references=include_references,
+        )
+        payload["max_tokens"] = 2400
     response = await app.state.qwen_client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload)
     response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
     content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip())
-    return json.loads(content)
+    state = json.loads(content)
+    if template_id:
+        validate_observation(state, template_id)
+    return state
 
 
-async def _qwen_fast_turn(image_bytes: bytes, content_type: str, question: str, version: str, context: str, history: list[dict[str, str]], route: str = "general") -> tuple[dict[str, Any], dict[str, Any]]:
+async def _qwen_fast_turn(image_bytes: bytes, content_type: str, question: str, version: str, context: str, history: list[dict[str, str]], route: str = "general",
+                          template_id: str = "", panel: str = "front", include_references: bool = True) -> tuple[dict[str, Any], dict[str, Any]]:
     """One VLM request for the interactive path.
 
     The model still separates observation from planning in the response JSON,
@@ -237,6 +272,12 @@ async def _qwen_fast_turn(image_bytes: bytes, content_type: str, question: str, 
     for text planning.
     """
     if DEMO_MODE or not QWEN_API_KEY:
+        if template_id:
+            state = _template_demo_state(template_id)
+            plan = _demo_plan(question, state, "")
+            plan.update(next_action="当前为演示模式，未调用视觉模型。要分析照片，请启用 Qwen 模式。",
+                        reason="仅展示模板接入接口，不是实际照片识别结果。", evidence_sufficient=False)
+            return state, plan
         state = _demo_state(question)
         return state, _demo_plan(question, state, context)
     data_url = f"data:{content_type};base64,{base64.b64encode(image_bytes).decode()}"
@@ -254,11 +295,22 @@ plan 必须包含：goal、need_clarification、questions（数组）、next_act
     payload = {"model": QWEN_FAST_MODEL, "messages": [{"role": "user", "content": [
         {"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": data_url}}
     ]}], "temperature": 0.1, "max_tokens": 650}
+    if template_id:
+        payload["messages"][0]["content"] = build_visual_content(
+            template_id, image_bytes, content_type, question, panel=panel, mode="fast",
+            include_references=include_references, manual_context=context[:2600], history=history,
+        )
+        payload["messages"][0]["content"].append({"type": "text", "text": f"本轮问题类型：{route}"})
+        payload["max_tokens"] = 3200
     response = await app.state.qwen_client.post(f"{QWEN_BASE_URL}/chat/completions", headers={"Authorization": f"Bearer {QWEN_API_KEY}"}, json=payload, timeout=httpx.Timeout(45.0, connect=10.0))
     response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
     content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip())
     result = json.loads(content)
+    if template_id:
+        if not isinstance(result, dict) or not isinstance(result.get("plan"), dict):
+            raise ValueError("模板响应必须包含 observation 和 plan 对象")
+        validate_observation(result.get("observation"), template_id)
     return result.get("observation", {}), result.get("plan", {})
 
 
@@ -304,7 +356,18 @@ async def health() -> dict[str, Any]:
         "fast_model": QWEN_FAST_MODEL,
         "trust_env_proxy": QWEN_TRUST_ENV,
         "fast_mode": FAST_MODE,
+        "device_templates_available": True,
     }
+
+
+@app.get("/api/device-templates")
+async def device_templates() -> dict[str, Any]:
+    entries = []
+    for entry in list_templates():
+        template = get_template(entry["template_id"])
+        entries.append({**entry, "selectors": template["selectors"],
+                        "compatibility_notes": template["compatibility_notes"]})
+    return {"templates": entries, "panels": ["front", "rear", "screen", "all"]}
 
 
 @app.post("/api/analyze")
@@ -314,11 +377,28 @@ async def analyze(
     version: str = Form(...),
     history: str = Form("[]"),
     session_id: str = Form(""),
+    template_id: str = Form(""),
+    panel: str = Form("front"),
+    include_references: bool = Form(True),
 ) -> dict[str, Any]:
     if not question.strip() or not version.strip():
         raise HTTPException(status_code=400, detail="问题和设备版本号不能为空")
     if not image.content_type or not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="请上传图片文件")
+    selected_template = None
+    if template_id:
+        try:
+            selected_template = get_template(template_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="未知设备模板；SDS2202X Plus 不可使用 HD 模板。") from exc
+        template_id = selected_template["template_id"]
+        if panel not in {"front", "rear", "screen", "all"}:
+            raise HTTPException(status_code=400, detail="照片区域必须为 front、rear、screen 或 all")
+        allowed_versions = [template_id, *selected_template["selectors"]]
+        matching_version = next((v for v in allowed_versions if v.casefold() == version.strip().casefold()), None)
+        if matching_version is None:
+            raise HTTPException(status_code=400, detail="知识库型号与所选模板不匹配，请选择匹配型号；Plus 不能使用 HD 模板。")
+        version = matching_version
     image_bytes = await image.read()
     if len(image_bytes) > 12 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="图片不能超过 12MB")
@@ -335,17 +415,36 @@ async def analyze(
         # Retrieve a small initial evidence set before the VLM call. This lets
         # fast mode ground its single response without a second model round.
         route = classify_question(question)
-        context = _load_manual_context(version, question)
-        evidence = _load_manual_evidence(version, question)
-        if FAST_MODE:
-            state, decision = await _qwen_fast_turn(model_bytes, model_content_type, question, version, context, history_items, route)
+        if selected_template:
+            context, evidence = _template_manual_context(version, question)
         else:
-            state = await _qwen_vision(model_bytes, model_content_type, question, version)
-            context = _load_manual_context(version, question + " " + json.dumps(state, ensure_ascii=False))
-            evidence = _load_manual_evidence(version, question + " " + json.dumps(state, ensure_ascii=False))
+            context = _load_manual_context(version, question)
+            evidence = _load_manual_evidence(version, question)
+        template_options = {"template_id": template_id, "panel": panel, "include_references": include_references} if selected_template else {}
+        if FAST_MODE:
+            state, decision = await _qwen_fast_turn(model_bytes, model_content_type, question, version, context, history_items, route, **template_options)
+        else:
+            state = await _qwen_vision(model_bytes, model_content_type, question, version, **template_options)
+            enriched_question = question + " " + json.dumps(state, ensure_ascii=False)
+            if selected_template:
+                context, evidence = _template_manual_context(version, enriched_question)
+            else:
+                context = _load_manual_context(version, enriched_question)
+                evidence = _load_manual_evidence(version, enriched_question)
             gate = _constraint_check(state)
             decision = await _qwen_plan(question, version, state, context, history_items, gate)
+        is_demo = DEMO_MODE or not QWEN_API_KEY
+        if selected_template:
+            validate_observation(state, template_id)
+            if not evidence or is_demo:
+                decision["evidence_sufficient"] = False
+            if is_demo:
+                decision.update(next_action="当前为演示模式，未调用视觉模型。要分析照片，请启用 Qwen 模式。",
+                                reason="仅展示模板接入接口，不是实际照片识别结果。",
+                                status="GUIDANCE", need_clarification=False, questions=[], expected_result=None)
         gate = _constraint_check(state)
+        if selected_template and is_demo:
+            gate = {"blocked": False, "reason": ""}
         if not FAST_MODE and gate["blocked"] and decision.get("status") == "GUIDANCE":
             decision.update({"status": "NEED_MORE_INFORMATION", "need_clarification": True, "questions": [gate["reason"]], "next_action": None, "reason": gate["reason"]})
         if FAST_MODE and gate["blocked"]:
@@ -359,7 +458,12 @@ async def analyze(
             "evidence": evidence,
             "route": route, "session_id": session_id,
             "mode": "demo" if DEMO_MODE or not QWEN_API_KEY else "qwen",
+            "template": {"id": template_id or None, "name": selected_template["display_name"] if selected_template else None,
+                         "panel": panel if selected_template else None, "applied": bool(selected_template and not is_demo),
+                         "references_included": bool(selected_template and include_references and not is_demo)},
         }
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=500, detail="设备模板参考图缺失，请检查模板 assets 目录。") from exc
     except httpx.TimeoutException as exc:
         raise HTTPException(status_code=504, detail="Qwen 服务响应超时，请检查模型名称、网络连接和账户额度后重试。") from exc
     except httpx.HTTPStatusError as exc:
